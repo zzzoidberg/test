@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en-US">
+    <head>
+        <title>main</title>
+        <script>
+
+function sha512(str) {
+    return crypto.subtle.digest("SHA-512", new TextEncoder("utf-8").encode(str)).then(buf => {
+        return Array.prototype.map.call(new Uint8Array(buf), x=>(('00'+x.toString(16)).slice(-2))).join('');
+    });
+}
+
+function main() {
+    const exclude = " \"'(),./:;<>?[\\]`{|}~"
+    var id1 = document.getElementById("id1");
+    var id2 = document.getElementById("id2");
+    var text = new URL(id1.value).hostname.split(/\./).slice(-2).join('.') + id2.value;
+
+    sha512(text).then(x => {
+        s = "";
+        n = BigInt('0x' + x);
+        while ((n = n / 96n) > 0) {
+            c = String.fromCharCode(Number(n % 96n) + 32);
+            if (exclude.indexOf(c) === -1) s += c;
+        }
+
+        id1.value = s.substring(0, 32);
+        id1.focus();
+        id1.select();
+    })
+}
+
+        </script>
+        <style>
+            #id1 {width: 190px;}
+            #id2 {width: 30px;}
+        </style>
+    </head>
+    <body>
+        <label for="id1">R:</label>
+        <input id="id1" onClick="this.select();">
+        <label for="id2">C:</label>
+        <input id="id2">
+        <button type="button" onclick="main();">check</button>
+    </body>
+</html>
